@@ -28,6 +28,6 @@ jobs:
           issuesWoLabels: true
           pullRequests: true
           prWoLabels: true
-          author: false
+          author: true
           verbose: true
  
