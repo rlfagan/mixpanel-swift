@@ -2,33 +2,30 @@ name: Upload Carthage Artifact
 
 on:
   push:
-    branches: [ auto-upload-carthage ]
+    tags:
+      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
 
 jobs:
-  build:
+  job1:
+    name: "Generate Change"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check-out"
+        uses: actions/checkout@v1
+      - name: "call action"
+        id: last_release
+        uses: InsonusK/get-latest-release@v1.0.1
+        with:
+          myToken: ${{ github.token }}
+          view_top: 1
+
+  job2:
     name: "🚀 Release"
+    needs: job1
     runs-on: macos-latest
     steps:
       - name: "Check-out"
         uses: actions/checkout@v1
-      - name: "Update Release CHANGELOG"
-        id: update-release-changelog
-        uses: heinrichreimer/github-changelog-generator-action@v2.2
-        runs-on: ubuntu-18.04
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          onlyLastTag: true
-          stripHeaders: false
-          base: "CHANGELOG.md"
-          headerLabel: "# Changelog"
-          breakingLabel: '### Breaking'
-          enhancementLabel: '### Enhancements'
-          stripGeneratorNotice: true
-          bugsLabel: '### Fixes'
-          issues: true
-          issuesWoLabels: true
-          pullRequests: true
-          prWoLabels: true
-          author: false
-          verbose: true
-
+      - name: "Print result"
+        run: |
+          echo "upload_url: ${{ needs.job1.steps.last_release.outputs.name }}"
