@@ -17,6 +17,14 @@ jobs:
         with:
           myToken: ${{ github.token }}
           view_top: 1
+      - name: "Print result"
+        run: |
+          echo "upload_url: ${{ steps.last_release.outputs.upload_url }}"
+          echo "name: ${{ steps.last_release.outputs.name }}"
+          echo "tag_name: ${{ steps.last_release.outputs.tag_name }}"
+          echo "created_at: ${{ steps.last_release.outputs.created_atd }}"
+          echo "draft: ${{ steps.last_release.outputs.draft }}"
+          echo "prerelease: ${{ steps.last_release.outputs.prerelease }}"
 
   job2:
     name: "🚀 Release"
@@ -28,3 +36,7 @@ jobs:
       - name: "Print result"
         run: |
           echo "upload_url: ${{ needs.job1.steps.last_release.outputs.name }}"
+          echo "name: ${{ needs.job1.steps.last_release.outputs.tag_name }}"
+          echo "created_at: ${{ needs.job1.steps.last_release.outputs.created_atd }}"
+          echo "draft: ${{ needs.job1.steps.last_release.outputs.draft }}"
+          echo "prerelease: ${{ needs.job1.steps.last_release.outputs.prerelease }}"
