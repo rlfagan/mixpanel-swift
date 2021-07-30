@@ -958,4 +958,21 @@ class MixpanelDemoTests: MixpanelBaseTests {
         let q3 = mixpanel.people.peopleQueue.last!["$unset"] as! [String]
         XCTAssertEqual(q3, [groupKey], "removeGroup people update not queued")
     }
+    
+    func testMPDB() {
+        _ = MPDB.open()
+        let token = "test"
+        MPDB.createTable(PersistenceType.events, token: token)
+        let event : InternalProperties = ["event": "Test", "properties": ["a": 1, "b": 2]]
+        for _ in 1...50 {
+            MPDB.insertRow(PersistenceType.events, token: token, data: JSONHandler.serializeJSONObject(event)!)
+        }
+        let dataArray = MPDB.readRows(PersistenceType.events, token: token, numRows: 50)
+        for entity in dataArray {
+            if let obj = JSONHandler.deserializeData(entity) {
+                print(obj)
+            }
+        }
+        MPDB.deleteRows(PersistenceType.events, token: token, numRows: 400)
+    }
 }

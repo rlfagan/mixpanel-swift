@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1703C5B726AB65E40094940B /* MPDB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1703C5B626AB65E40094940B /* MPDB.swift */; };
+		1703C5BA26AB66AE0094940B /* MixpanelPersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1703C5B926AB66AD0094940B /* MixpanelPersistence.swift */; };
+		1703C5BB26AB66AE0094940B /* MixpanelPersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1703C5B926AB66AD0094940B /* MixpanelPersistence.swift */; };
+		1703C5BC26AB66AE0094940B /* MixpanelPersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1703C5B926AB66AD0094940B /* MixpanelPersistence.swift */; };
+		1703C5BD26AB66AE0094940B /* MixpanelPersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1703C5B926AB66AD0094940B /* MixpanelPersistence.swift */; };
+		1703C5C026AB854D0094940B /* MPDB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1703C5BF26AB854D0094940B /* MPDB.swift */; };
+		1703C5C126AB855C0094940B /* MPDB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1703C5BF26AB854D0094940B /* MPDB.swift */; };
+		1703C5C226AB85640094940B /* MPDB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1703C5BF26AB854D0094940B /* MPDB.swift */; };
 		51DD567C1D306B740045D3DB /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51DD56791D306B740045D3DB /* Logger.swift */; };
 		51DD56831D306B7B0045D3DB /* PrintLogging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51DD56801D306B7B0045D3DB /* PrintLogging.swift */; };
 		51DD56841D306B7B0045D3DB /* FileLogging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51DD56811D306B7B0045D3DB /* FileLogging.swift */; };
@@ -94,6 +102,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1703C5B626AB65E40094940B /* MPDB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MPDB.swift; sourceTree = "<group>"; };
+		1703C5B926AB66AD0094940B /* MixpanelPersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MixpanelPersistence.swift; sourceTree = "<group>"; };
+		1703C5BF26AB854D0094940B /* MPDB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MPDB.swift; path = Sources/MPDB.swift; sourceTree = "<group>"; };
 		51DD56791D306B740045D3DB /* Logger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		51DD56801D306B7B0045D3DB /* PrintLogging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrintLogging.swift; sourceTree = "<group>"; };
 		51DD56811D306B7B0045D3DB /* FileLogging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileLogging.swift; sourceTree = "<group>"; };
@@ -179,6 +190,7 @@
 		E11594731CFF1491007F8B4F = {
 			isa = PBXGroup;
 			children = (
+				1703C5BF26AB854D0094940B /* MPDB.swift */,
 				E115947F1CFF1491007F8B4F /* Mixpanel */,
 				E115947E1CFF1491007F8B4F /* Products */,
 			);
@@ -214,6 +226,8 @@
 				51DD56771D306B620045D3DB /* Log */,
 				E189D8FA1D5A692A007F3F29 /* Utilities */,
 				E115948A1CFF1538007F8B4F /* Mixpanel.swift */,
+				1703C5B626AB65E40094940B /* MPDB.swift */,
+				1703C5B926AB66AD0094940B /* MixpanelPersistence.swift */,
 				E115948D1D000709007F8B4F /* MixpanelInstance.swift */,
 				E11594921D0036E1007F8B4F /* Persistence.swift */,
 				E115949E1D01BE14007F8B4F /* Flush.swift */,
@@ -477,6 +491,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1703C5C226AB85640094940B /* MPDB.swift in Sources */,
 				86F86EF7224554B900B69832 /* Group.swift in Sources */,
 				86F86ECA22443A4C00B69832 /* SessionMetadata.swift in Sources */,
 				86F86EC922443A4700B69832 /* Constants.swift in Sources */,
@@ -492,6 +507,7 @@
 				86F86EBD224439F500B69832 /* Flush.swift in Sources */,
 				86F86EBC224439F100B69832 /* PrintLogging.swift in Sources */,
 				86F86EBB224439EB00B69832 /* FlushRequest.swift in Sources */,
+				1703C5BD26AB66AE0094940B /* MixpanelPersistence.swift in Sources */,
 				86F86EBA224439E300B69832 /* Logger.swift in Sources */,
 				86F86EB9224439DC00B69832 /* AutomaticProperties.swift in Sources */,
 				86F86F3722497F2900B69832 /* AutomaticEvents.swift in Sources */,
@@ -504,6 +520,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1703C5B726AB65E40094940B /* MPDB.swift in Sources */,
 				51DD56831D306B7B0045D3DB /* PrintLogging.swift in Sources */,
 				E115948E1D000709007F8B4F /* MixpanelInstance.swift in Sources */,
 				E151FA381E70DFB5002EF53D /* AutomaticEvents.swift in Sources */,
@@ -521,6 +538,7 @@
 				E165228F1D6781DF000D5949 /* MixpanelType.swift in Sources */,
 				BB9614171F3BB87700C3EF3E /* ReadWriteLock.swift in Sources */,
 				E190522D1F9FC1BC00900E5D /* SessionMetadata.swift in Sources */,
+				1703C5BA26AB66AE0094940B /* MixpanelPersistence.swift in Sources */,
 				E1982BFF1D0AC2E2006B7330 /* Error.swift in Sources */,
 				51DD56841D306B7B0045D3DB /* FileLogging.swift in Sources */,
 				E1D335CC1D303A0D00E68E12 /* FlushRequest.swift in Sources */,
@@ -534,6 +552,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1703C5C026AB854D0094940B /* MPDB.swift in Sources */,
 				67FF65E521878416005161FA /* Group.swift in Sources */,
 				E12782BB1D4AB5CB0025FB05 /* PrintLogging.swift in Sources */,
 				E12782BC1D4AB5CB0025FB05 /* FileLogging.swift in Sources */,
@@ -549,6 +568,7 @@
 				E12782C61D4AB5CB0025FB05 /* People.swift in Sources */,
 				E19052001F9548F000900E5D /* ReadWriteLock.swift in Sources */,
 				E12782C71D4AB5CB0025FB05 /* Error.swift in Sources */,
+				1703C5BB26AB66AE0094940B /* MixpanelPersistence.swift in Sources */,
 				E16522901D67D421000D5949 /* MixpanelType.swift in Sources */,
 				E12782C81D4AB5CB0025FB05 /* Constants.swift in Sources */,
 				E10D118D1EC0F30900195CCD /* AutomaticEvents.swift in Sources */,
@@ -561,6 +581,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1703C5C126AB855C0094940B /* MPDB.swift in Sources */,
 				67FF65E421878414005161FA /* Group.swift in Sources */,
 				E1F15FE01E64B60D00391AE3 /* MixpanelInstance.swift in Sources */,
 				E1F15FDF1E64B60D00391AE3 /* Mixpanel.swift in Sources */,
@@ -576,6 +597,7 @@
 				E1F15FE31E64B60D00391AE3 /* Track.swift in Sources */,
 				E19052011F9548F000900E5D /* ReadWriteLock.swift in Sources */,
 				E1F15FE41E64B60D00391AE3 /* People.swift in Sources */,
+				1703C5BC26AB66AE0094940B /* MixpanelPersistence.swift in Sources */,
 				E1F15FDB1E64B60A00391AE3 /* Error.swift in Sources */,
 				E1F15FD81E64B60200391AE3 /* FileLogging.swift in Sources */,
 				86F86F3622497F1200B69832 /* AutomaticEvents.swift in Sources */,

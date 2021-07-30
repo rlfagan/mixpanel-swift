@@ -13,9 +13,22 @@ class MPDB {
     private static var connection: OpaquePointer?
     private static let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
     
+    static private func tableNameFor(_ persistenceType: PersistenceType, token: String) -> String {
+        return "mixpanel_\(token)_\(persistenceType)"
+    }
+    
     static func open() -> OpaquePointer? {
-        let fileURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathComponent("MPDB.sqlite")
-        if sqlite3_open_v2(fileURL.path, &connection, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nil) != SQLITE_OK {
+        let manager = FileManager.default
+        #if os(iOS)
+            let url = manager.urls(for: .libraryDirectory, in: .userDomainMask).last
+        #else
+            let url = manager.urls(for: .cachesDirectory, in: .userDomainMask).last
+        #endif // os(iOS)
+
+        guard let urlUnwrapped = url?.appendingPathComponent("MPDB.sqlite").path else {
+            return nil
+        }
+        if sqlite3_open_v2(urlUnwrapped, &connection, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nil) != SQLITE_OK {
             logError(message: "Error opening database")
             close()
             return nil
@@ -26,16 +39,17 @@ class MPDB {
         }
     }
     
-    private static func close() {
+    static func close() {
         sqlite3_close(connection)
     }
     
-    static func createTable(tableName: String) {
+    static func createTable(_ persistenceType: PersistenceType, token: String) {
+        let tableName = tableNameFor(persistenceType, token: token)
         let createTableString = "CREATE TABLE IF NOT EXISTS \(tableName)(id integer primary key autoincrement,data blob,time real);"
         var createTableStatement: OpaquePointer? = nil
         if sqlite3_prepare_v2(connection, createTableString, -1, &createTableStatement, nil) == SQLITE_OK {
             if sqlite3_step(createTableStatement) == SQLITE_DONE {
-                logError(message: "\(tableName) table created")
+                Logger.info(message: "\(tableName) table created")
             } else {
                 logError(message: "\(tableName) table create failed")
             }
@@ -45,14 +59,15 @@ class MPDB {
         sqlite3_finalize(createTableStatement)
     }
     
-    static func insertRow(tableName: String, data: Data, time: Double) {
+    static func insertRow(_ persistenceType: PersistenceType, token: String, data: Data) {
+        let tableName = tableNameFor(persistenceType, token: token)
         let insertString = "INSERT INTO \(tableName) (data, time) VALUES(?, ?);"
         var insertStatement: OpaquePointer? = nil
         data.withUnsafeBytes { rawBuffer in
             if let pointer = rawBuffer.baseAddress {
                 if sqlite3_prepare_v2(connection, insertString, -1, &insertStatement, nil) == SQLITE_OK {
                     sqlite3_bind_blob(insertStatement, 1, pointer, Int32(rawBuffer.count), SQLITE_TRANSIENT)
-                    sqlite3_bind_double(insertStatement, 2, time)
+                    sqlite3_bind_double(insertStatement, 2, Date().timeIntervalSince1970)
                     if sqlite3_step(insertStatement) == SQLITE_DONE {
                         Logger.info(message: "Successfully inserted row.")
                     } else {
@@ -66,7 +81,8 @@ class MPDB {
         }
     }
     
-    static func deleteRows(tableName: String, numRows: Int) {
+    static func deleteRows(_ persistenceType: PersistenceType, token: String, numRows: Int) {
+        let tableName = tableNameFor(persistenceType, token: token)
         let deleteString = "DELETE FROM \(tableName) WHERE id IN (SELECT id FROM \(tableName) ORDER BY time LIMIT \(numRows))"
         var deleteStatement: OpaquePointer? = nil
         if sqlite3_prepare_v2(connection, deleteString, -1, &deleteStatement, nil) == SQLITE_OK {
@@ -81,14 +97,15 @@ class MPDB {
         sqlite3_finalize(deleteStatement)
     }
     
-    static func readRows(tableName: String, numRows: Int)  -> [Data] {
+    static func readRows(_ persistenceType: PersistenceType, token: String, numRows: Int)  -> [Data] {
+        let tableName = tableNameFor(persistenceType, token: token)
         var rows: [Data] = []
         let selectString = "SELECT data FROM \(tableName) WHERE id IN (SELECT id FROM \(tableName) ORDER BY time LIMIT \(numRows))"
         var selectStatement: OpaquePointer? = nil
         if sqlite3_prepare_v2(connection, selectString, -1, &selectStatement, nil) == SQLITE_OK {
             while sqlite3_step(selectStatement) == SQLITE_ROW {
-                if let blob = sqlite3_column_blob(selectStatement, 1) {
-                    let blobLength = sqlite3_column_bytes(selectStatement, 1)
+                if let blob = sqlite3_column_blob(selectStatement, 0) {
+                    let blobLength = sqlite3_column_bytes(selectStatement, 0)
                     let data = Data(bytes: blob, count: Int(blobLength))
                     rows.append(data)
                 } else {

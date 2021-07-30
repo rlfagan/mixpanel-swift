@@ -30,6 +30,16 @@ class JSONHandler {
 
         return b64
     }
+    
+    class func deserializeData(_ data: Data) -> MPObjectToParse? {
+        var object: MPObjectToParse? = nil
+        do {
+           object = try JSONSerialization.jsonObject(with: data, options: [])
+        } catch {
+            Logger.warn(message: "exception decoding object data")
+        }
+        return object
+    }
 
      class func serializeJSONObject(_ obj: MPObjectToParse) -> Data? {
         let serializableJSONObject: MPObjectToParse
