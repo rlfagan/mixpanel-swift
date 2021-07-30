@@ -30,7 +30,7 @@ class MixpanelPersistence {
     
     func saveEntity(_ entity: InternalProperties, type: PersistenceType, token: String) {
         if let data = JSONHandler.serializeJSONObject(entity) {
-            MPDB.insertRow(type, token: token, data: data)
+            MPDB.insertRow(type, data: data)
         }
     }
     
@@ -48,7 +48,7 @@ class MixpanelPersistence {
     
     func loadEntitiesInBatch(_ batchSize: Int = 50, type: PersistenceType, token: String) -> Queue {
         var jsonArrary : [InternalProperties] = []
-        let dataArray = MPDB.readRows(type, token: token, numRows: batchSize)
+        let dataArray = MPDB.readRows(type, numRows: batchSize)
         for entity in dataArray {
             if let jsonObject = JSONHandler.deserializeData(entity) as? InternalProperties {
                 jsonArrary.append(jsonObject)
@@ -58,7 +58,7 @@ class MixpanelPersistence {
     }
     
     func removeEventsInBatch(_ batchSize: Int = 50, type: PersistenceType, token: String) {
-        MPDB.deleteRows(type, token: token, numRows: batchSize)
+        MPDB.deleteRows(type, numRows: batchSize)
     }
     
     func resetEvents() {

@@ -11,10 +11,9 @@ import SQLite3
 
 class MPDB {
     private static var connection: OpaquePointer?
+    private static var token: String?
     private static let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
-    
     private static let DB_FILE_NAME: String = "MPDB.sqlite"
-    private static let NO_DB_CONNECTION: String = "No database connection found. Calling MPDB.open()"
     
     private static func pathToDb() -> String? {
         let manager = FileManager.default
@@ -30,18 +29,34 @@ class MPDB {
         return urlUnwrapped
     }
     
-    static private func tableNameFor(_ persistenceType: PersistenceType, token: String) -> String {
-        return "mixpanel_\(token)_\(persistenceType)"
+    private static func tableNameFor(_ persistenceType: PersistenceType) -> String {
+        return "mixpanel_\(token!)_\(persistenceType)"
     }
     
-    static func open() {
+    private static func reconnect() {
+        Logger.warn(message: "No database connection found. Calling MPDB.open()")
+        if let projectToken = token {
+            open(projectToken)
+        } else {
+            Logger.warn(message: "No project token found. Database cannot be opened. Make sure you've called MPDB.open(projectToken)")
+        }
+    }
+    
+    static func open(_ projectToken: String) {
+        if !projectToken.isEmpty {
+            token = projectToken
+        } else {
+            Logger.error(message: "Project token must not be empty. Database cannot be opened.")
+            return
+        }
         if let dbPath = pathToDb() {
             if sqlite3_open_v2(dbPath, &connection, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nil) != SQLITE_OK {
-                logError(message: "Error opening database at path: \(dbPath)")
+                logSqlError(message: "Error opening or creating database at path: \(dbPath)")
                 close()
             }
             else {
                 Logger.info(message: "Successfully opened connection to database at path: \(dbPath)")
+                createTables()
             }
         }
     }
@@ -51,7 +66,7 @@ class MPDB {
         Logger.info(message: "Connection to database closed.")
     }
     
-    static private func recreateDb() {
+    static private func recreate() {
         close()
         if let dbPath = pathToDb() {
             do {
@@ -65,35 +80,42 @@ class MPDB {
                 Logger.error(message: "Unable to remove database file at path: \(dbPath), error: \(error)")
             }
         }
-        open()
+        reconnect()
     }
     
-    static func createTable(_ persistenceType: PersistenceType, token: String) {
+    static private func createTableFor(_ persistenceType: PersistenceType) {
         if let db = connection {
-            let tableName = tableNameFor(persistenceType, token: token)
+            let tableName = tableNameFor(persistenceType)
             let createTableString = "CREATE TABLE IF NOT EXISTS \(tableName)(id integer primary key autoincrement,data blob,time real);"
             var createTableStatement: OpaquePointer? = nil
             if sqlite3_prepare_v2(db, createTableString, -1, &createTableStatement, nil) == SQLITE_OK {
                 if sqlite3_step(createTableStatement) == SQLITE_DONE {
                     Logger.info(message: "\(tableName) table created")
                 } else {
-                    logError(message: "\(tableName) table create failed")
-                    recreateDb()
+                    logSqlError(message: "\(tableName) table create failed")
+                    recreate()
                 }
             } else {
-                logError(message: "CREATE statement for table \(tableName) could not be prepared")
-                recreateDb()
+                logSqlError(message: "CREATE statement for table \(tableName) could not be prepared")
+                recreate()
             }
             sqlite3_finalize(createTableStatement)
         } else {
-            Logger.warn(message: NO_DB_CONNECTION)
-            open()
+            reconnect()
         }
     }
     
-    static func insertRow(_ persistenceType: PersistenceType, token: String, data: Data) {
+    static private func createTables() {
+        createTableFor(PersistenceType.events)
+        createTableFor(PersistenceType.people)
+        createTableFor(PersistenceType.groups)
+        createTableFor(PersistenceType.properties)
+        createTableFor(PersistenceType.optOutStatus)
+    }
+    
+    static func insertRow(_ persistenceType: PersistenceType, data: Data) {
         if let db = connection {
-            let tableName = tableNameFor(persistenceType, token: token)
+            let tableName = tableNameFor(persistenceType)
             let insertString = "INSERT INTO \(tableName) (data, time) VALUES(?, ?);"
             var insertStatement: OpaquePointer? = nil
             data.withUnsafeBytes { rawBuffer in
@@ -104,49 +126,47 @@ class MPDB {
                         if sqlite3_step(insertStatement) == SQLITE_DONE {
                             Logger.info(message: "Successfully inserted row into table \(tableName)")
                         } else {
-                            logError(message: "Failed to insert row into table \(tableName)")
-                            recreateDb()
+                            logSqlError(message: "Failed to insert row into table \(tableName)")
+                            recreate()
                         }
                     } else {
-                        logError(message: "INSERT statement for table \(tableName) could not be prepared")
-                        recreateDb()
+                        logSqlError(message: "INSERT statement for table \(tableName) could not be prepared")
+                        recreate()
                     }
                     sqlite3_finalize(insertStatement)
                 }
             }
         } else {
-            Logger.warn(message: NO_DB_CONNECTION)
-            open()
+            reconnect()
         }
     }
     
-    static func deleteRows(_ persistenceType: PersistenceType, token: String, numRows: Int) {
+    static func deleteRows(_ persistenceType: PersistenceType, numRows: Int) {
         if let db = connection {
-            let tableName = tableNameFor(persistenceType, token: token)
+            let tableName = tableNameFor(persistenceType)
             let deleteString = "DELETE FROM \(tableName) WHERE id IN (SELECT id FROM \(tableName) ORDER BY time LIMIT \(numRows))"
             var deleteStatement: OpaquePointer? = nil
             if sqlite3_prepare_v2(db, deleteString, -1, &deleteStatement, nil) == SQLITE_OK {
                 if sqlite3_step(deleteStatement) == SQLITE_DONE {
                     Logger.info(message: "Succesfully deleted rows from table \(tableName)")
                 } else {
-                    logError(message: "Failed to delete rows from table \(tableName)")
-                    recreateDb()
+                    logSqlError(message: "Failed to delete rows from table \(tableName)")
+                    recreate()
                 }
             } else {
-                logError(message: "DELETE statement for table \(tableName) could not be prepared")
-                recreateDb()
+                logSqlError(message: "DELETE statement for table \(tableName) could not be prepared")
+                recreate()
             }
             sqlite3_finalize(deleteStatement)
         } else {
-            Logger.warn(message: NO_DB_CONNECTION)
-            open()
+            reconnect()
         }
     }
     
-    static func readRows(_ persistenceType: PersistenceType, token: String, numRows: Int)  -> [Data] {
+    static func readRows(_ persistenceType: PersistenceType, numRows: Int)  -> [Data] {
         var rows: [Data] = []
         if let db = connection {
-            let tableName = tableNameFor(persistenceType, token: token)
+            let tableName = tableNameFor(persistenceType)
             let selectString = "SELECT data FROM \(tableName) WHERE id IN (SELECT id FROM \(tableName) ORDER BY time LIMIT \(numRows))"
             var selectStatement: OpaquePointer? = nil
             var rowsRead: Int = 0
@@ -158,28 +178,29 @@ class MPDB {
                         rows.append(data)
                         rowsRead += 1
                     } else {
-                        logError(message: "No blob found in data column for row in \(tableName)")
+                        logSqlError(message: "No blob found in data column for row in \(tableName)")
                     }
                 }
                 Logger.info(message: "Successfully read \(rowsRead) from table \(tableName)")
             } else {
-                logError(message: "SELECT statement for table \(tableName) could not be prepared")
+                logSqlError(message: "SELECT statement for table \(tableName) could not be prepared")
             }
             sqlite3_finalize(selectStatement)
         } else {
-            Logger.warn(message: NO_DB_CONNECTION)
-            open()
+            reconnect()
         }
         return rows
     }
     
-    static private func logError(message: String? = nil) {
+    static private func logSqlError(message: String? = nil) {
         if let db = connection {
             if let msg = message {
                 Logger.error(message: msg)
             }
-            let errmsg = String(cString: sqlite3_errmsg(db)!)
-            Logger.error(message: errmsg)
+            let sqlError = String(cString: sqlite3_errmsg(db)!)
+            Logger.error(message: sqlError)
+        } else {
+            reconnect()
         }
     }
 }
