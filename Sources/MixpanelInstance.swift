@@ -215,8 +215,8 @@ open class MixpanelInstance: CustomDebugStringConvertible, FlushDelegate, AEDele
     init(apiToken: String?, flushInterval: Double, name: String, optOutTrackingByDefault: Bool = false) {
         if let apiToken = apiToken, !apiToken.isEmpty {
             self.apiToken = apiToken
+            MPDB.open(self.apiToken)
         }
-        MPDB.open(self.apiToken)
         self.name = name
         self.readWriteLock = ReadWriteLock(label: "com.mixpanel.globallock")
         flushInstance = Flush(basePathIdentifier: name)
@@ -281,6 +281,7 @@ open class MixpanelInstance: CustomDebugStringConvertible, FlushDelegate, AEDele
     init(apiToken: String?, flushInterval: Double, name: String, optOutTrackingByDefault: Bool = false) {
         if let apiToken = apiToken, !apiToken.isEmpty {
             self.apiToken = apiToken
+            MPDB.open(self.apiToken)
         }
         self.name = name
         self.readWriteLock = ReadWriteLock(label: "com.mixpanel.globallock")
