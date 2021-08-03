@@ -8,12 +8,12 @@
 
 import Foundation
 
-enum PersistenceType: String {
-    case events
-    case people
-    case groups
-    case properties
-    case optOutStatus
+enum PersistenceType: String, CaseIterable {
+    case events = "events"
+    case people = "people"
+    case groups = "groups"
+    case properties = "properties"
+    case optOutStatus = "optOutStatus"
 }
 
 
@@ -28,27 +28,31 @@ class MixpanelPersistence {
     
     
     
-    func saveEntity(_ entity: InternalProperties, type: PersistenceType, token: String) {
+    func saveEntity(_ entity: InternalProperties, type: PersistenceType) {
         if let data = JSONHandler.serializeJSONObject(entity) {
             MPDB.insertRow(type, data: data)
         }
     }
     
-    func saveEntities(_ entities: Queue, type: PersistenceType, token: String) {
-        
+    func saveEntities(_ entities: Queue, type: PersistenceType) {
+        for entity in entities {
+            if let data = JSONHandler.serializeJSONObject(entity) {
+                MPDB.insertRow(type, data: data)
+            }
+        }
     }
     
-    func loadEntity(_ type: PersistenceType, token: String) -> InternalProperties? {
-        let jsonArray : [InternalProperties] = loadEntitiesInBatch(1, type: type, token: token)
+    func loadEntity(_ type: PersistenceType) -> InternalProperties? {
+        let jsonArray : [InternalProperties] = loadEntitiesInBatch(1, type: type)
         if !jsonArray.isEmpty {
             return jsonArray[0]
         }
         return nil
     }
     
-    func loadEntitiesInBatch(_ batchSize: Int = 50, type: PersistenceType, token: String) -> Queue {
-        var jsonArrary : [InternalProperties] = []
+    func loadEntitiesInBatch(_ batchSize: Int = 50, type: PersistenceType) -> Queue {
         let dataArray = MPDB.readRows(type, numRows: batchSize)
+        var jsonArrary : Queue = []
         for entity in dataArray {
             if let jsonObject = JSONHandler.deserializeData(entity) as? InternalProperties {
                 jsonArrary.append(jsonObject)
@@ -57,12 +61,14 @@ class MixpanelPersistence {
         return jsonArrary
     }
     
-    func removeEventsInBatch(_ batchSize: Int = 50, type: PersistenceType, token: String) {
+    func removeEntitiesInBatch(_ batchSize: Int = 50, type: PersistenceType) {
         MPDB.deleteRows(type, numRows: batchSize)
     }
     
-    func resetEvents() {
-        
+    func resetEntities() {
+        for pType in PersistenceType.allCases {
+            MPDB.deleteRows(pType, numRows: Int.max)
+        }
     }
     
 }

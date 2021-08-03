@@ -961,12 +961,11 @@ class MixpanelDemoTests: MixpanelBaseTests {
     
     func testMPDB() {
         MPDB.open("test")
-        let pTypes : [PersistenceType] = [PersistenceType.events, PersistenceType.people, PersistenceType.groups, PersistenceType.properties, PersistenceType.optOutStatus]
         let numRows = 50
         let halfRows = numRows/2
         let eventName = "Test Event"
         func _inner() {
-            for pType in pTypes {
+            for pType in PersistenceType.allCases {
                 let emptyArray = MPDB.readRows(pType, numRows: numRows)
                 XCTAssertEqual(emptyArray, [], "Table should be empty")
                 for i in 0...numRows-1 {
