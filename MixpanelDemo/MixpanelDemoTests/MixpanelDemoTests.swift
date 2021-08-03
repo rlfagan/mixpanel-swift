@@ -960,19 +960,48 @@ class MixpanelDemoTests: MixpanelBaseTests {
     }
     
     func testMPDB() {
-        _ = MPDB.open()
-        let token = "test"
-        MPDB.createTable(PersistenceType.events, token: token)
-        let event : InternalProperties = ["event": "Test", "properties": ["a": 1, "b": 2]]
-        for _ in 1...50 {
-            MPDB.insertRow(PersistenceType.events, token: token, data: JSONHandler.serializeJSONObject(event)!)
-        }
-        let dataArray = MPDB.readRows(PersistenceType.events, token: token, numRows: 50)
-        for entity in dataArray {
-            if let obj = JSONHandler.deserializeData(entity) {
-                print(obj)
+        MPDB.open("test")
+        let pTypes : [PersistenceType] = [PersistenceType.events, PersistenceType.people, PersistenceType.groups, PersistenceType.properties, PersistenceType.optOutStatus]
+        let numRows = 50
+        let halfRows = numRows/2
+        let eventName = "Test Event"
+        func _inner() {
+            for pType in pTypes {
+                let emptyArray = MPDB.readRows(pType, numRows: numRows)
+                XCTAssertEqual(emptyArray, [], "Table should be empty")
+                for i in 0...numRows-1 {
+                    let eventObj : InternalProperties = ["event": eventName, "properties": ["index": i]]
+                    let eventData = JSONHandler.serializeJSONObject(eventObj)!
+                    MPDB.insertRow(pType, data: eventData)
+                }
+                let dataArray : [Data] = MPDB.readRows(pType, numRows: halfRows)
+                XCTAssertEqual(dataArray.count, halfRows, "Should have read only half of the rows")
+                for (n, entity) in dataArray.enumerated() {
+                    if let obj = JSONHandler.deserializeData(entity) as? InternalProperties {
+                        XCTAssertEqual(obj["event"] as! String, eventName, "Event name should be unchanged")
+                        // index should be oldest events, 0 - 24
+                        XCTAssertEqual(obj["properties"] as! [String : Int], ["index": n], "Should read oldest events first")
+                    }
+                }
+                MPDB.deleteRows(pType, numRows: halfRows)
+                let dataArray2 : [Data] = MPDB.readRows(pType, numRows: numRows)
+                // even though we requested numRows, there should only be halfRows left
+                XCTAssertEqual(dataArray2.count, halfRows, "Should have deleted half the rows")
+                for (n, entity) in dataArray2.enumerated() {
+                    if let obj = JSONHandler.deserializeData(entity) as? InternalProperties {
+                        XCTAssertEqual(obj["event"] as! String, eventName, "Event name should be unchanged")
+                        // old events (0-24) should have been deleted so index should be recent events 25-49
+                        XCTAssertEqual(obj["properties"] as! [String : Int], ["index": n + halfRows], "Should have deleted oldest events first")
+                    }
+                }
+                MPDB.deleteRows(pType, numRows: halfRows)
+                let emptyArray2 = MPDB.readRows(pType, numRows: numRows)
+                XCTAssertEqual(emptyArray2, [], "All rows should have been deleted")
             }
         }
-        MPDB.deleteRows(PersistenceType.events, token: token, numRows: 400)
+        _inner()
+        MPDB.close()
+        // test MPDB.reconnect() on lost database connection
+        _inner()
     }
 }

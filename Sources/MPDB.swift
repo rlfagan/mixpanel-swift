@@ -63,6 +63,7 @@ class MPDB {
     
     static func close() {
         sqlite3_close(connection)
+        connection = nil
         Logger.info(message: "Connection to database closed.")
     }
     
