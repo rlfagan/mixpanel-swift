@@ -1,5 +1,3 @@
-
-
 <p align="center">
   <img src="https://github.com/mixpanel/mixpanel-android/blob/assets/mixpanel.png?raw=true" alt="Mixpanel Swift Library" height="150"/>
 </p>
@@ -12,6 +10,7 @@
 [![Swift Package Manager compatible](https://img.shields.io/badge/Swift%20Package%20Manager-compatible-brightgreen.svg)](https://github.com/apple/swift-package-manager)
 [![Apache License](http://img.shields.io/cocoapods/l/Mixpanel-swift.svg)](https://mixpanel.com)
 [![Documentation](https://mixpanel.github.io/mixpanel-swift/badge.svg)](https://mixpanel.github.io/mixpanel-swift)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Frlfagan%2Fmixpanel-swift.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Frlfagan%2Fmixpanel-swift?ref=badge_shield)
 # Table of Contents
 
 <!-- MarkdownTOC -->
@@ -151,3 +150,7 @@ No worries, here are some links that you will find useful:
 
 Have any questions? Reach out to Mixpanel [Support](https://help.mixpanel.com/hc/en-us/requests/new) to speak to someone smart, quickly.
 
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Frlfagan%2Fmixpanel-swift.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Frlfagan%2Fmixpanel-swift?ref=badge_large)
