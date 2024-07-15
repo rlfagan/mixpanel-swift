@@ -5,4 +5,4 @@ jobs:
     - uses: actions/checkout@v3
     - uses: fossas/fossa-action@main
       with:
-        api-key: 24d4692b10eb422ce53478ddb6665857
+        api-key: '{{secrets.fossaApiKey}}'
