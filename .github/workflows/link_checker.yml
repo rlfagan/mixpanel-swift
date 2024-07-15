@@ -1,14 +1,1 @@
-jobs:
-  fossa-scan:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - uses: fossas/fossa-action@main
-      with:
-        api-key: 3327ed5d39827e515060cfc9efb4d84e
-name: GH Action Bulk On-boarder
-'on':
-  push:
-    branches:
-    - '**'
-  workflow_dispatch: null
+# Workflow disabled
